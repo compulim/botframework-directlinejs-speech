@@ -4,13 +4,29 @@
     <title>DirectLineJS Speech</title>
     <script src="directlinespeech.js"></script>
     <script src="https://cdn.botframework.com/botframework-webchat/4.5.2/webchat.js"></script>
+    <style type="text/css">
+    body, html, #webchat { height: 100%; }
+
+    body {
+      background-color: #F7F7F7;
+      margin: 0;
+    }
+
+    #webchat {
+      box-shadow: 0 0 10px rgba(0, 0, 0, .1);
+      margin: 0 auto;
+      min-width: 320px;
+      max-width: 480px;
+    }
+    </style>
   </head>
   <body>
-    <h1>Hello, World!</h1>
+    <div id="webchat"></div>
     <script>
       'use strict';
 
       const TOKEN_URL = 'http://localhost:3978/token/directlinespeech';
+      const { DirectLineSpeech, WebChat } = window;
 
       (async function () {
         const res = await fetch(
@@ -26,8 +42,12 @@
           throw new Error(`Failed to fetch Direct Line Speech token, server returned ${ res.status }.`);
         }
 
-        console.log(await res.json());
-      }()).catch(err => window.dispatchEvent(new ErrorEvent(err.message)));
+        const { token } = await res.json();
+
+        WebChat.renderWebChat({
+          directLine: WebChat.createDirectLine({ token })
+        }, document.getElementById('webchat'));
+      }()).catch(err => console.error(err));
     </script>
   </body>
 </html>
