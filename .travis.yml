@@ -11,9 +11,6 @@ install:
 - npm ci
 - npm run prepublishOnly
 
-script:
-# - npm test
-
 before_deploy:
 - npm pack
 - cp botframework-directlinejs-speech-$NPM_PACKAGE_VERSION.tgz botframework-directlinejs-speech.tgz
@@ -26,6 +23,8 @@ deploy:
 - provider: pages
   github_token: $GITHUB_TOKEN
   local_dir: dist
+  on:
+    branch: master
   skip_cleanup: true
 
 - provider: releases
