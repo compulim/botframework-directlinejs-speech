@@ -10,7 +10,7 @@ install:
 - npm ci
 - npm run prepublishOnly
 
-before_deploy:
+script:
 # - npm test
 
 before_deploy:
