@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "public/index.html"
+    },
+    {
+      "source": "directlinespeech.js",
+      "destination": "dist/directlinespeech.js"
+    }
+  ]
+}

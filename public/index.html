@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <title>DirectLineJS Speech</title>
+    <script src="directlinespeech.js"></script>
+    <script src="https://cdn.botframework.com/botframework-webchat/4.5.2/webchat.js"></script>
+  </head>
+  <body>
+    <h1>Hello, World!</h1>
+    <script>
+      'use strict';
+
+      const TOKEN_URL = 'http://localhost:3978/token/directlinespeech';
+
+      (async function () {
+        const res = await fetch(
+          TOKEN_URL,
+          {
+            headers: {
+              accept: 'application/json'
+            }
+          }
+        );
+
+        if (!res.ok) {
+          throw new Error(`Failed to fetch Direct Line Speech token, server returned ${ res.status }.`);
+        }
+
+        console.log(await res.json());
+      }()).catch(err => window.dispatchEvent(new ErrorEvent(err.message)));
+    </script>
+  </body>
+</html>

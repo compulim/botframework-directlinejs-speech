@@ -1,0 +1,34 @@
+{
+  "name": "botframework-directlinejs-speech",
+  "version": "0.0.1-0",
+  "description": "",
+  "files": [
+    "dist/**/*",
+    "lib/**/*"
+  ],
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "npm run build:babel",
+    "build:babel": "babel --out-dir lib src",
+    "build:webpack": "webpack",
+    "prepublishOnly": "npm run build:babel && npm run build:webpack -- --config webpack.config.js",
+    "start": "concurrently --kill-others --names \"babel,serve,webpack\" \"npm run build:babel -- --watch\" \"npm run start:serve\" \"npm run build:webpack -- --config webpack-development.config.js --watch\"",
+    "start:serve": "serve",
+    "test": "jest"
+  },
+  "author": "William Wong <compulim@hotmail.com> (http://compulim.info/)",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/cli": "^7.6.2",
+    "@babel/core": "^7.6.2",
+    "@babel/plugin-proposal-object-rest-spread": "^7.6.2",
+    "@babel/preset-env": "^7.6.2",
+    "babel-jest": "^24.9.0",
+    "concurrently": "^4.1.2",
+    "core-js": "^3.2.1",
+    "jest": "^24.9.0",
+    "serve": "^11.1.0",
+    "webpack": "^4.41.0",
+    "webpack-cli": "^3.3.9"
+  }
+}

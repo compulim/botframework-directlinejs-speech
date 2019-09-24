@@ -1,0 +1,40 @@
+language: node_js
+
+node_js:
+- 12
+
+before_install:
+- npx version-from-git --travis
+
+install:
+- npm ci
+- npm run prepublishOnly
+
+before_deploy:
+# - npm test
+
+before_deploy:
+- npm pack
+- cp public/index.html dist
+- export TRAVIS_TAG=dev
+- git tag -f $TRAVIS_TAG
+
+deploy:
+- provider: pages
+  github_token: $GITHUB_TOKEN
+  local_dir: dist
+  skip_cleanup: true
+
+- provider: releases
+  api_key: $GITHUB_TOKEN
+  body: "This build will be updated on every push. Please do not use it for production use."
+  file:
+  - dist/directlinespeech.js
+  - botframework-directlinejs-speech-*.tgz
+  file_glob: true
+  name: "Continuous integration build"
+  on:
+    branch: streamingextensions
+  overwrite: true
+  prerelease: true
+  skip_cleanup: true
