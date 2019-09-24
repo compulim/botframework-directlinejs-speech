@@ -1,5 +1,7 @@
 # DirectLineJS for Direct Line Speech channel
 
+[![Build Status](https://travis-ci.org/compulim/botframework-directlinejs-speech.svg?branch=master)](https://travis-ci.org/compulim/botframework-directlinejs-speech)
+
 ## Hosted demo
 
 To try out the demo, navigate to https://compulim.github.io/botframework-directlinejs-speech/.
