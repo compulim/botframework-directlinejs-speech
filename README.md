@@ -4,7 +4,7 @@
 
 ## Hosted demo
 
-To try out the demo, navigate to https://compulim.github.io/botframework-directlinejs-speech/.
+To try out the demo, navigate to https://compulim.github.io/botframework-directlinejs-speech/. It is connected to a bot codenamed "Waterbottle", at https://github.com/compulim/botframework-waterbottle.
 
 ## How to contribute
 
@@ -28,6 +28,12 @@ To try out the demo, navigate to https://compulim.github.io/botframework-directl
 1. Start modifying `/src/index.js`
    - When you save the file, make sure Babel and Webpack compile successfully
 1. Navigate to http://localhost:5000/
+
+### Modifying the bot
+
+Please submit a ticket to either repository and drop me a message.
+
+The bot is part of a test harness. Modifying it may break a lot of tests.
 
 ### Using it in your own web app
 
