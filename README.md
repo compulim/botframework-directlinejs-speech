@@ -4,21 +4,39 @@
 
 ## Hosted demo
 
-To try out the demo, navigate to https://compulim.github.io/botframework-directlinejs-speech/. It is connected to a bot codenamed "Waterbottle", at https://github.com/compulim/botframework-waterbottle.
+To try out the demo, navigate to https://compulim.github.io/botframework-directlinejs-speech/.
+
+The demo page is connected to a bot codenamed "Waterbottle", source code at [compulim/botframework-waterbottle](https://github.com/compulim/botframework-waterbottle).
+
+The build drops can be found on [this release page](https://github.com/compulim/botframework-directlinejs-speech/releases/tag/dev):
+
+- `botframework-directlinejs-speech-*.tgz` is the tarball as if we would publish it
+- [`botframework-directlinejs-speech.tgz`](https://github.com/compulim/botframework-directlinejs-speech/releases/download/dev/botframework-directlinejs-speech.tgz) is the latest tarball
+- `directlinespeech-*.js` is the bundle to be used in browser, under `window.DirectLineSpeech`
+- [`directlinespeech.js`](https://github.com/compulim/botframework-directlinejs-speech/releases/download/dev/directlinespeech.js) is the latest bundle
 
 ## How to contribute
 
+This repository has [Travis CI configured for CI/CD](https://travis-ci.org/compulim/botframework-directlinejs-speech). When a commit is pushed, it will automatically deploy to the demo page. It should complete the whole process within 5 minutes.
+
 ### Bumping Speech SDK version
 
-1. Drop a `.tgz` file under `/external/` folder, same name
-   - If you do need to modify the package name, don't modify `package.json` by hand, instead
-      1. `npm uninstall microsoft-cognitiveservices-speech-sdk`
-      1. `npm install external/your-package.tgz`
-      1. Modify `/src/index.js` to reference it
-1. Push a commit for it
-1. Wait until Travis CI completely built it, https://travis-ci.org/compulim/botframework-directlinejs-speech
-1. Try it out on demo at https://compulim.github.io/botframework-directlinejs-speech/
-   - GitHub Pages limit to 10 releases per hours
+1. Drop a tarball under `/external/` folder
+1. Push a commit
+1. Wait until Travis CI completely built it
+   - Build status at https://travis-ci.org/compulim/botframework-directlinejs-speech
+1. Try out the demo at https://compulim.github.io/botframework-directlinejs-speech/
+
+> Note: GitHub Pages limit to 10 deployments per hour
+
+#### Updating Speech SDK package name
+
+If you do need to modify the package name, don't modify `package.json` by hand, do the followings instead:
+
+1. `npm uninstall microsoft-cognitiveservices-speech-sdk`
+1. `npm install external/your-new-package.tgz`
+1. You may need to modify `/src/index.js` to reference the new package
+
 
 ### Modifying DirectLineJS source code
 
@@ -26,7 +44,7 @@ To try out the demo, navigate to https://compulim.github.io/botframework-directl
 1. `npm ci`
 1. `npm start`
 1. Start modifying `/src/index.js`
-   - When you save the file, make sure Babel and Webpack compile successfully
+   - When you save the file, make sure Babel and Webpack both compile successfully
 1. Navigate to http://localhost:5000/
 
 ### Modifying the bot
