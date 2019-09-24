@@ -34,7 +34,7 @@ deploy:
   file_glob: true
   name: "Continuous integration build"
   on:
-    branch: streamingextensions
+    branch: master
   overwrite: true
   prerelease: true
   skip_cleanup: true
