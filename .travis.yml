@@ -5,6 +5,7 @@ node_js:
 
 before_install:
 - npx version-from-git --travis
+- export NPM_PACKAGE_VERSION=`jq -r .version package.json`
 
 install:
 - npm ci
@@ -15,6 +16,8 @@ script:
 
 before_deploy:
 - npm pack
+- cp botframework-directlinejs-speech-$NPM_PACKAGE_VERSION.tgz botframework-directlinejs-speech.tgz
+- cp dist/directlinespeech.js dist/directlinespeech-$NPM_PACKAGE_VERSION.js
 - cp public/index.html dist
 - export TRAVIS_TAG=dev
 - git tag -f $TRAVIS_TAG
@@ -29,8 +32,8 @@ deploy:
   api_key: $GITHUB_TOKEN
   body: "This build will be updated on every push. Please do not use it for production use."
   file:
-  - dist/directlinespeech.js
-  - botframework-directlinejs-speech-*.tgz
+  - dist/directlinespeech*.js
+  - botframework-directlinejs-speech*.tgz
   file_glob: true
   name: "Continuous integration build"
   on:
