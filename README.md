@@ -21,7 +21,11 @@ This repository has [Travis CI configured for CI/CD](https://travis-ci.org/compu
 
 ### Bumping Speech SDK version
 
-1. Drop a tarball under `/external/` folder
+1. Clone the source code
+1. Run `npm ci`
+1. Drop the tarball under `/external/` folder
+1. Run `npm install external/microsoft-cognitiveservices-speech-sdk-1.6.0-alpha.0.1.tgz`
+   - This will update `package-lock.json`
 1. Push a commit
 1. Wait until Travis CI completely built it
    - Build status at https://travis-ci.org/compulim/botframework-directlinejs-speech
@@ -36,7 +40,6 @@ If you do need to modify the package name, don't modify `package.json` by hand, 
 1. `npm uninstall microsoft-cognitiveservices-speech-sdk`
 1. `npm install external/your-new-package.tgz`
 1. You may need to modify `/src/index.js` to reference the new package
-
 
 ### Modifying DirectLineJS source code
 
