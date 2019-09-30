@@ -25,27 +25,98 @@
     <script>
       'use strict';
 
-      const TOKEN_URL = 'http://localhost:3978/token/directlinespeech';
+      const DIRECT_LINE_SPEECH_TOKEN_URL = 'https://webchat-waterbottle.azurewebsites.net/token/directlinespeech';
+      const SPEECH_SERVICES_AUTHORIZATION_TOKEN_URL = 'https://webchat-waterbottle.azurewebsites.net/token/speechservices';
       const { DirectLineSpeech, WebChat } = window;
 
-      (async function () {
+      async function fetchJSON(url, options) {
         const res = await fetch(
-          TOKEN_URL,
+          url,
+          {
+            headers: {
+              accept: 'application/json'
+            },
+            ...options
+          }
+        );
+
+        if (res.ok) {
+          return await res.json();
+        } else {
+          throw new Error(`Failed to fetch JSON, server returned ${ res.status }.`);
+        }
+      }
+
+      async function fetchDirectLineToken() {
+        const res = await fetch(
+          DIRECT_LINE_SPEECH_TOKEN_URL,
           {
             headers: {
               accept: 'application/json'
             }
           }
         );
+      }
 
-        if (!res.ok) {
-          throw new Error(`Failed to fetch Direct Line Speech token, server returned ${ res.status }.`);
-        }
+      async function fetchDirectLineSpeechToken() {
+        return (await fetchJSON(DIRECT_LINE_SPEECH_TOKEN_URL)).token;
+      }
 
-        const { token } = await res.json();
+      async function fetchSpeechServicesRegion() {
+        return (await fetchJSON(SPEECH_SERVICES_AUTHORIZATION_TOKEN_URL)).region;
+      }
+
+      async function fetchSpeechServicesToken() {
+        return (await fetchJSON(SPEECH_SERVICES_AUTHORIZATION_TOKEN_URL)).token;
+      }
+
+      async function fetchEnvironmentFile() {
+        const res = await fetch('/.env');
+        const lines = await res.text();
+
+        return lines.split('\n').map(line => line.trim()).filter(line => line && !/^#/.test(line)).reduce((env, line) => {
+          const tokens = line.split('=');
+          const [key, ...values] = tokens;
+
+          return {
+            ...env,
+            [key]: values.join('=')
+          };
+        }, {});
+      }
+
+      (async function () {
+        const urlSearchParams = new URLSearchParams(document.location.search);
+        const secret = urlSearchParams.get('s');
+        const speechServicesRegion = urlSearchParams.get('sr');
+        const speechServicesSubscriptionKey = urlSearchParams.get('ss');
+
+        // const {
+        //   secret: DIRECT_LINE_SPEECH_SECRET,
+        //   speechServicesRegion: SPEECH_SERVICES_REGION,
+        //   speechServicesSubscriptionKey: SPEECH_SERVICES_SUBSCRIPTION_KEY
+        // } = await fetchEnvironmentFile();
+
+        // const token = await fetchDirectLineSpeechToken();
+
+        // const {
+        //   region: speechServicesRegion,
+        //   token: speechServicesAuthorizationToken
+        // } = await fetchSpeechServicesToken();
+
+        // console.log({
+        //   secret,
+        //   speechServicesRegion,
+        //   speechServicesSubscriptionKey
+        // });
 
         WebChat.renderWebChat({
-          directLine: WebChat.createDirectLine({ token })
+          directLine: new DirectLineSpeech({
+            secret,
+            // speechServicesAuthorizationToken,
+            speechServicesRegion,
+            speechServicesSubscriptionKey
+          })
         }, document.getElementById('webchat'));
       }()).catch(err => console.error(err));
     </script>

@@ -4,7 +4,7 @@
 
 ## Hosted demo
 
-To try out the demo, navigate to https://compulim.github.io/botframework-directlinejs-speech/.
+To try out the demo, navigate to https://compulim.github.io/botframework-directlinejs-speech/?s=DIRECT_LINE_SECRET&sr=SPEECH_SERVICES_REGION&ss=SPEECH_SERVICES_SUBSCRIPTION_KEY.
 
 The demo page is connected to a bot codenamed "Waterbottle", source code at [compulim/botframework-waterbottle](https://github.com/compulim/botframework-waterbottle).
 
@@ -74,3 +74,7 @@ The bot is part of a test harness. Modifying it may break a lot of tests.
   </body>
 </html>
 ```
+
+## Questions
+
+### How can I use Direct Line token as the credentials?
