@@ -41,8 +41,7 @@ export default class DirectLineSpeech {
 
         const connector = new DialogServiceConnector(config);
 
-        // connector.connect(); // This is not implemented.
-        connector.privReco.connect();
+        connector.connect();
 
         connectionStatusObserver.next(2);
       } catch (err) {
