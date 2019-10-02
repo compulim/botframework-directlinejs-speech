@@ -1,9 +1,10 @@
 import {
-  // AudioConfig,
+  AudioConfig,
   // CognitiveSubscriptionKeyAuthentication,
   // DialogConnectorFactory,
   DialogServiceConfig,
   DialogServiceConnector,
+  OutputFormat,
   PropertyId
 } from 'microsoft-cognitiveservices-speech-sdk';
 
@@ -13,6 +14,8 @@ import DirectLineSpeech from './DirectLineSpeech';
 import createWebSpeechPonyfillFactory from './createWebSpeechPonyfillFactory';
 
 export default function create({
+  audioConfig = AudioConfig.fromDefaultMicrophoneInput(),
+  lang,
   secret,
   speechServicesAuthorizationToken,
   speechServicesRegion,
@@ -33,16 +36,32 @@ export default function create({
     config.setProperty(PropertyId.SpeechServiceAuthorization_Token, speechServicesAuthorizationToken);
   }
 
-  const dialogServiceConnector = new DialogServiceConnector(config);
+  config.outputFormat = OutputFormat.Detailed;
+  config.speechRecognitionLanguage = lang || window.navigator.language || 'en-US';
+
+  const dialogServiceConnector = new DialogServiceConnector(config, audioConfig);
 
   dialogServiceConnector.connect();
-  dialogServiceConnector.startContinuousRecognitionAsync = () => {
-    console.log('startContinuousRecognitionAsync');
-  }
+
+  // HACK: startContinuousRecognitionAsync is not working yet, use listenOnceAsync instead
+  dialogServiceConnector.startContinuousRecognitionAsync = (resolve, reject) => {
+    dialogServiceConnector.listenOnceAsync(() => {}, err => {
+      resolve = null;
+      reject && reject(err);
+    });
+
+    reject = null;
+    resolve && resolve();
+  };
+
+  // HACK: stopContinuousRecognitionAsync is not working yet.
+  dialogServiceConnector.stopContinuousRecognitionAsync = () => {
+  };
 
   return {
     directLine: new DirectLineSpeech({ dialogServiceConnector }),
     webSpeechPonyfillFactory: createWebSpeechPonyfillFactory({
+      audioConfig,
       // enableTelemetry,
       recognizer: dialogServiceConnector,
       // speechRecognitionEndpointId,

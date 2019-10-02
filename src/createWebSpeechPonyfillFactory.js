@@ -1,6 +1,7 @@
 const { createSpeechRecognitionPonyfillFromRecognizer } = window.WebSpeechCognitiveServices;
 
 export default function ({
+  audioConfig,
   enableTelemetry,
   recognizer,
   // speechRecognitionEndpointId,
@@ -11,6 +12,7 @@ export default function ({
   // return ({ referenceGrammarID }) => {
   return () => {
     const { SpeechGrammarList, SpeechRecognition } = createSpeechRecognitionPonyfillFromRecognizer({
+      audioConfig,
       createRecognizer: () => recognizer,
       enableTelemetry,
       // enableTelemetry,
