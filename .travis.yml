@@ -16,6 +16,7 @@ before_deploy:
 - cp botframework-directlinejs-speech-$NPM_PACKAGE_VERSION.tgz botframework-directlinejs-speech.tgz
 - cp dist/directlinespeech.js dist/directlinespeech-$NPM_PACKAGE_VERSION.js
 - cp public/index.html dist
+- cp public/web-speech-cognitive-services.development.js dist
 - export TRAVIS_TAG=dev
 - git tag -f $TRAVIS_TAG
 
