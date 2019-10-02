@@ -12,49 +12,31 @@ import Observable from 'core-js/features/observable';
 
 import shareObservable from './shareObservable';
 
+function sleep(ms = 1000) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 export default class DirectLineSpeech {
   constructor({
-    secret,
-    token,
-    speechServicesAuthorizationToken,
-    speechServicesRegion,
-    speechServicesSubscriptionKey
+    dialogServiceConnector
   }) {
-    if (token) {
-      throw new Error('Direct Line token is not supported.');
-    }
+    let connectionStatusObserver;
 
-    this.activity$ = shareObservable(new Observable(observer => {
-      try {
-        const { connectionStatusObserver } = this;
+    this.activity$ = shareObservable(new Observable(async _observer => {
+      connectionStatusObserver.next(0);
 
-        connectionStatusObserver.next(1);
+      await sleep(100);
 
-        const config = DialogServiceConfig.fromBotSecret(secret, speechServicesSubscriptionKey || 'DUMMY', speechServicesRegion);
+      connectionStatusObserver.next(1);
 
-        config.setProperty(PropertyId.SpeechServiceConnection_RecoLanguage, 'en-US');
+      await sleep(100);
 
-        if (speechServicesAuthorizationToken) {
-          config.setProperty(PropertyId.speechServicesSubscriptionKey, null);
-          config.setProperty(PropertyId.SpeechServiceAuthorization_Token, speechServicesAuthorizationToken);
-        }
-
-        const connector = new DialogServiceConnector(config);
-
-        connector.connect();
-
-        connectionStatusObserver.next(2);
-      } catch (err) {
-        console.error(err);
-        observer.error(err);
-      }
+      connectionStatusObserver.next(2);
     }));
 
     this.connectionStatus$ = shareObservable(new Observable(observer => {
-      this.connectionStatusObserver = observer;
+      connectionStatusObserver = observer;
     }));
-
-    console.log(this);
   }
 }
 

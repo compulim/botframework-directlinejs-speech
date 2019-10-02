@@ -1,7 +1,7 @@
-import DirectLineSpeech from './DirectLineSpeech';
+import create from './create';
 
 export {
-  DirectLineSpeech
+  create
 }
 
 if (typeof HTMLDocument !== 'undefined' && typeof document !== 'undefined' && document instanceof HTMLDocument) {

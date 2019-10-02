@@ -7,6 +7,10 @@
     {
       "source": "directlinespeech.js",
       "destination": "dist/directlinespeech.js"
+    },
+    {
+      "source": "web-speech-cognitive-services.development.js",
+      "destination": "public/web-speech-cognitive-services.development.js"
     }
   ]
 }

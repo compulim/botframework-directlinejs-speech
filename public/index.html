@@ -2,6 +2,7 @@
 <html lang="en-US">
   <head>
     <title>DirectLineJS Speech</title>
+    <script src="web-speech-cognitive-services.development.js"></script>
     <script src="directlinespeech.js"></script>
     <script src="https://cdn.botframework.com/botframework-webchat/4.5.2/webchat.js"></script>
     <style type="text/css">
@@ -110,13 +111,22 @@
         //   speechServicesSubscriptionKey
         // });
 
+        const { directLine, webSpeechPonyfillFactory } = window.DirectLine.create({
+          secret,
+          // speechServicesAuthorizationToken,
+          speechServicesRegion,
+          speechServicesSubscriptionKey
+        });
+
         WebChat.renderWebChat({
-          directLine: new DirectLineSpeech({
-            secret,
-            // speechServicesAuthorizationToken,
-            speechServicesRegion,
-            speechServicesSubscriptionKey
-          })
+          // directLine: new DirectLineSpeech({
+          //   secret,
+          //   // speechServicesAuthorizationToken,
+          //   speechServicesRegion,
+          //   speechServicesSubscriptionKey
+          // })
+          directLine,
+          webSpeechPonyfillFactory
         }, document.getElementById('webchat'));
       }()).catch(err => console.error(err));
     </script>

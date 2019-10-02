@@ -1,13 +1,13 @@
 const { resolve } = require('path');
 
 module.exports = {
-  entry: {
-    DirectLine: './lib/index'
-  },
+  entry: './lib/index',
   mode: 'production',
   output: {
     filename: 'directlinespeech.js',
-    libraryTarget: 'umd',
+    library: 'DirectLine',
+    // libraryExport: 'DirectLine',
+    libraryTarget: 'window',
     path: resolve(__dirname, 'dist')
   }
 };
