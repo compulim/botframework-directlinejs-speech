@@ -55,7 +55,8 @@ export default function create({
   };
 
   // HACK: stopContinuousRecognitionAsync is not working yet.
-  dialogServiceConnector.stopContinuousRecognitionAsync = () => {
+  dialogServiceConnector.stopContinuousRecognitionAsync = resolve => {
+    resolve && resolve();
   };
 
   return {
