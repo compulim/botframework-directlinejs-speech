@@ -30,6 +30,9 @@ export default function create({
 
   config.setProperty(PropertyId.SpeechServiceConnection_RecoLanguage, 'en-US');
 
+  // HACK: Setup use of "auto reply" bot to test
+  config.setProperty("Conversation_Communication_Type", "AutoReply");
+
   // HACK: Pass authorization token instead of subscription key
   if (speechServicesAuthorizationToken) {
     config.setProperty(PropertyId.speechServicesSubscriptionKey, null);
