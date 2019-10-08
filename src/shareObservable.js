@@ -1,4 +1,4 @@
-export default function share(observable) {
+export default function shareObservable(observable) {
   let observers = [];
   let subscription;
 

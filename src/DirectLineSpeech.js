@@ -1,43 +1,44 @@
-import {
-  AudioConfig,
-  CognitiveSubscriptionKeyAuthentication,
-  // DialogConnectorFactory,
-  DialogServiceConfig,
-  DialogServiceConnector,
-  PropertyId
-} from 'microsoft-cognitiveservices-speech-sdk';
-
-import * as SpeechSDK from 'microsoft-cognitiveservices-speech-sdk';
 import Observable from 'core-js/features/observable';
 
 import shareObservable from './shareObservable';
 
-function sleep(ms = 1000) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
+// function sleep(ms = 1000) {
+//   return new Promise(resolve => setTimeout(resolve, ms));
+// }
 
 export default class DirectLineSpeech {
   constructor({
     dialogServiceConnector
   }) {
+    let activityObserver;
     let connectionStatusObserver;
 
-    this.activity$ = shareObservable(new Observable(async _observer => {
+    this.activity$ = shareObservable(new Observable(observer => {
+      activityObserver = observer;
       connectionStatusObserver.next(0);
-
-      await sleep(100);
-
       connectionStatusObserver.next(1);
-
-      await sleep(100);
-
       connectionStatusObserver.next(2);
+
+      return () => {};
     }));
 
     this.connectionStatus$ = shareObservable(new Observable(observer => {
       connectionStatusObserver = observer;
+
+      return () => {};
     }));
+
+    dialogServiceConnector.activityReceived = (_sender, { activity }) => {
+      const { messagePayload } = JSON.parse(activity);
+
+      messagePayload.type = 'message';
+
+      activityObserver && activityObserver.next(messagePayload);
+    };
   }
+
+  getSessionId() { return Observable.of(); }
+  postActivity() { return Observable.of(); }
 }
 
 // connectionStatus$: BehaviorSubject<ConnectionStatus>,
