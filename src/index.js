@@ -1,6 +1,10 @@
+import { AudioConfig } from 'microsoft-cognitiveservices-speech-sdk';
+
 import create from './create';
 
 export {
+  // TODO: Temporarily exporting AudioConfig for development purpose
+  AudioConfig,
   create
 }
 

@@ -63,12 +63,8 @@
         return (await fetchJSON(DIRECT_LINE_SPEECH_TOKEN_URL)).token;
       }
 
-      async function fetchSpeechServicesRegion() {
-        return (await fetchJSON(SPEECH_SERVICES_AUTHORIZATION_TOKEN_URL)).region;
-      }
-
-      async function fetchSpeechServicesToken() {
-        return (await fetchJSON(SPEECH_SERVICES_AUTHORIZATION_TOKEN_URL)).token;
+      async function fetchSpeechServicesCredentials() {
+        return await fetchJSON(SPEECH_SERVICES_AUTHORIZATION_TOKEN_URL);
       }
 
       async function fetchEnvironmentFile() {
@@ -86,45 +82,41 @@
         }, {});
       }
 
+      async function createAudioConfigFromWavFile(url) {
+        return window.DirectLine.AudioConfig.fromWavFileInput(
+          new File(
+            [await (await fetch(url)).blob()],
+            url
+          )
+        );
+      }
+
       (async function () {
         const urlSearchParams = new URLSearchParams(document.location.search);
-        const secret = urlSearchParams.get('s');
-        const speechServicesRegion = urlSearchParams.get('sr');
+        const directLineSecret = urlSearchParams.get('s');
         const speechServicesSubscriptionKey = urlSearchParams.get('ss');
 
-        // const {
-        //   secret: DIRECT_LINE_SPEECH_SECRET,
-        //   speechServicesRegion: SPEECH_SERVICES_REGION,
-        //   speechServicesSubscriptionKey: SPEECH_SERVICES_SUBSCRIPTION_KEY
-        // } = await fetchEnvironmentFile();
+        let speechServicesAuthorizationToken;
+        let speechServicesRegion;
 
-        // const token = await fetchDirectLineSpeechToken();
+        if (speechServicesSubscriptionKey) {
+          speechServicesRegion = urlSearchParams.get('sr');
+        } else {
+          const { region, token } = await fetchSpeechServicesCredentials();
 
-        // const {
-        //   region: speechServicesRegion,
-        //   token: speechServicesAuthorizationToken
-        // } = await fetchSpeechServicesToken();
-
-        // console.log({
-        //   secret,
-        //   speechServicesRegion,
-        //   speechServicesSubscriptionKey
-        // });
+          speechServicesRegion = region;
+          speechServicesAuthorizationToken = token;
+        }
 
         const { directLine, webSpeechPonyfillFactory } = window.DirectLine.create({
-          secret,
-          // speechServicesAuthorizationToken,
+          // audioConfig: await createAudioConfigFromWavFile('test.wav'),
+          secret: directLineSecret,
+          speechServicesAuthorizationToken,
           speechServicesRegion,
           speechServicesSubscriptionKey
         });
 
         WebChat.renderWebChat({
-          // directLine: new DirectLineSpeech({
-          //   secret,
-          //   // speechServicesAuthorizationToken,
-          //   speechServicesRegion,
-          //   speechServicesSubscriptionKey
-          // })
           directLine,
           webSpeechPonyfillFactory
         }, document.getElementById('webchat'));
