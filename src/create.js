@@ -15,7 +15,7 @@ import createWebSpeechPonyfillFactory from './createWebSpeechPonyfillFactory';
 
 export default function create({
   audioConfig = AudioConfig.fromDefaultMicrophoneInput(),
-  lang,
+  lang = 'en-US',
   secret,
   speechServicesAuthorizationToken,
   speechServicesRegion,
@@ -23,24 +23,30 @@ export default function create({
   token
 }) {
   if (token) {
-    throw new Error('Direct Line token is not supported.');
+    throw new Error('Direct Line token is not supported yet.');
+  }
+
+  if (
+    (!speechServicesAuthorizationToken && !speechServicesSubscriptionKey)
+    || (speechServicesAuthorizationToken && speechServicesSubscriptionKey)
+  ) {
+    throw new Error('You must specify either speechServicesAuthorizationToken or speechServicesSubscriptionKey only.');
   }
 
   const config = DialogServiceConfig.fromBotSecret(secret, speechServicesSubscriptionKey || 'DUMMY', speechServicesRegion);
 
-  config.setProperty(PropertyId.SpeechServiceConnection_RecoLanguage, 'en-US');
+  config.setProperty(PropertyId.SpeechServiceConnection_RecoLanguage, lang);
 
   // HACK: Setup use of "auto reply" bot to test
-  config.setProperty("Conversation_Communication_Type", "AutoReply");
+  // config.setProperty("Conversation_Communication_Type", "AutoReply");
 
   // HACK: Pass authorization token instead of subscription key
   if (speechServicesAuthorizationToken) {
-    config.setProperty(PropertyId.speechServicesSubscriptionKey, null);
+    config.setProperty(PropertyId.SpeechServiceConnection_Key, null);
     config.setProperty(PropertyId.SpeechServiceAuthorization_Token, speechServicesAuthorizationToken);
   }
 
   config.outputFormat = OutputFormat.Detailed;
-  config.speechRecognitionLanguage = lang || window.navigator.language || 'en-US';
 
   const dialogServiceConnector = new DialogServiceConnector(config, audioConfig);
 

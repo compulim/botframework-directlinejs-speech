@@ -13,6 +13,8 @@ export default class DirectLineSpeech {
     let activityObserver;
     let connectionStatusObserver;
 
+    this.dialogServiceConnector = dialogServiceConnector;
+
     this.activity$ = shareObservable(new Observable(observer => {
       activityObserver = observer;
       connectionStatusObserver.next(0);
@@ -38,7 +40,16 @@ export default class DirectLineSpeech {
   }
 
   getSessionId() { return Observable.of(); }
-  postActivity() { return Observable.of(); }
+  postActivity(activity) {
+    try {
+      this.dialogServiceConnector.sendActivity(activity);
+
+      // TODO: Fix the activity ID
+      return Observable.of();
+    } catch (err) {
+      return new Observable(observer => observer.error(err));
+    }
+  }
 }
 
 // connectionStatus$: BehaviorSubject<ConnectionStatus>,
