@@ -2,7 +2,7 @@ import fetch from 'node-fetch';
 
 const TOKEN_URL_TEMPLATE = 'https://{region}.api.cognitive.microsoft.com/sts/v1.0/issueToken';
 
-export default async function fetchAuthorizationToken({ region, subscriptionKey }) {
+export default async function fetchSpeechCredentials({ region, subscriptionKey }) {
   const res = await fetch(TOKEN_URL_TEMPLATE.replace(/\{region\}/u, region), {
     headers: {
       'Ocp-Apim-Subscription-Key': subscriptionKey
