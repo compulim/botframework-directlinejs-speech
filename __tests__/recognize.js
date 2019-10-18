@@ -33,9 +33,9 @@ describe('send speech to bot using SSML', () => {
     );
 
     await connectedDeferred.promise;
+    await recognizeOnce(webSpeechPonyfillFactory());
 
-    // TODO: Fix test
-    // await recognizeOnce(webSpeechPonyfillFactory());
+    // TODO: Wait for incoming activity
   });
 
   afterEach(() => {

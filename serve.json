@@ -9,8 +9,8 @@
       "destination": "dist/directlinespeech.js"
     },
     {
-      "source": "test.wav",
-      "destination": "public/test.wav"
+      "source": "hello.wav",
+      "destination": "public/hello.wav"
     },
     {
       "source": "web-speech-cognitive-services.development.js",
