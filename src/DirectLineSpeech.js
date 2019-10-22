@@ -10,13 +10,12 @@ export default class DirectLineSpeech {
   constructor({
     dialogServiceConnector
   }) {
-    let activityObserver;
     let connectionStatusObserver;
 
     this.dialogServiceConnector = dialogServiceConnector;
 
     this.activity$ = shareObservable(new Observable(observer => {
-      activityObserver = observer;
+      this._activityObserver = observer;
       connectionStatusObserver.next(0);
       connectionStatusObserver.next(1);
       connectionStatusObserver.next(2);
@@ -30,22 +29,28 @@ export default class DirectLineSpeech {
       return () => {};
     }));
 
-    dialogServiceConnector.activityReceived = (_sender, { activity }) => {
-      const { messagePayload } = JSON.parse(activity);
+    dialogServiceConnector.activityReceived = (_, { activity, audioStream }) => {
+      console.log(`activityReceived`, activity);
 
-      messagePayload.type = 'message';
-
-      activityObserver && activityObserver.next(messagePayload);
+      this._activityObserver && this._activityObserver.next(activity);
     };
   }
 
   getSessionId() { return Observable.of(); }
   postActivity(activity) {
     try {
+      // TODO: Consider server echoing back the activity, because of timestamp clockskew issue.
+      const pseudoActivityId = Math.random().toString(36).substr(2);
+
       this.dialogServiceConnector.sendActivity(activity);
 
-      // TODO: Fix the activity ID
-      return Observable.of();
+      this._activityObserver && this._activityObserver.next({
+        ...activity,
+        id: pseudoActivityId,
+        timestamp: new Date().toISOString()
+      });
+
+      return Observable.of(pseudoActivityId);
     } catch (err) {
       return new Observable(observer => observer.error(err));
     }
