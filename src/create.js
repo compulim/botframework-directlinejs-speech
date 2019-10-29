@@ -2,6 +2,7 @@ import {
   AudioConfig,
   // CognitiveSubscriptionKeyAuthentication,
   // DialogConnectorFactory,
+  BotFrameworkConfig,
   DialogServiceConfig,
   DialogServiceConnector,
   OutputFormat,
@@ -33,7 +34,10 @@ export default function create({
     throw new Error('You must specify either speechServicesAuthorizationToken or speechServicesSubscriptionKey only.');
   }
 
-  const config = DialogServiceConfig.fromBotSecret(secret, speechServicesSubscriptionKey || 'DUMMY', speechServicesRegion);
+  const config = BotFrameworkConfig.fromSubscription(speechServicesSubscriptionKey || 'DUMMY', speechServicesRegion);
+
+  // HACK: temporarily needed during the service transition
+  config.setProperty(PropertyId.Conversation_ApplicationId, secret);
 
   config.setProperty(PropertyId.SpeechServiceConnection_RecoLanguage, lang);
 

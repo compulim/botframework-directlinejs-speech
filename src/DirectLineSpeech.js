@@ -42,7 +42,7 @@ export default class DirectLineSpeech {
       // TODO: Consider server echoing back the activity, because of timestamp clockskew issue.
       const pseudoActivityId = Math.random().toString(36).substr(2);
 
-      this.dialogServiceConnector.sendActivity(activity);
+      this.dialogServiceConnector.sendActivityAsync(activity);
 
       this._activityObserver && this._activityObserver.next({
         ...activity,
