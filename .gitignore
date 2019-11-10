@@ -1,4 +1,7 @@
 /.env
+/coverage
 /dist
 /lib
 /node_modules
+/public/webchat
+/public/webspeech

@@ -1,14 +1,16 @@
 import Observable from 'core-js/features/observable';
 
 import shareObservable from './shareObservable';
+import SpeechSynthesisAudioStreamUtterance from './SpeechSynthesisAudioStreamUtterance';
 
-// function sleep(ms = 1000) {
-//   return new Promise(resolve => setTimeout(resolve, ms));
-// }
+function randomActivityId() {
+  return Math.random().toString(36).substr(2);
+}
 
 export default class DirectLineSpeech {
   constructor({
-    dialogServiceConnector
+    dialogServiceConnector,
+    eventSource
   }) {
     let connectionStatusObserver;
 
@@ -16,6 +18,7 @@ export default class DirectLineSpeech {
 
     this.activity$ = shareObservable(new Observable(observer => {
       this._activityObserver = observer;
+
       connectionStatusObserver.next(0);
       connectionStatusObserver.next(1);
       connectionStatusObserver.next(2);
@@ -30,25 +33,67 @@ export default class DirectLineSpeech {
     }));
 
     dialogServiceConnector.activityReceived = (_, { activity, audioStream }) => {
-      console.log(`activityReceived`, activity);
+      // console.log('dialogServiceConnector.activityReceived', activity);
 
-      this._activityObserver && this._activityObserver.next(activity);
+      try {
+        this._activityObserver && this._activityObserver.next({
+          ...activity,
+          channelData: {
+            ...activity.channelData,
+            ...(audioStream ? { utterance: new SpeechSynthesisAudioStreamUtterance(audioStream) } : {}),
+            directLineSpeechAudioStream: audioStream
+          },
+          from: {
+            ...activity.from,
+            role: 'bot'
+          },
+          // Direct Line Speech server currently do not timestamp outgoing activities.
+          // Thus, it will be easier to just re-timestamp every incoming/outgoing activities using local time.
+          timestamp: new Date().toISOString()
+        });
+      } catch (error) {
+        console.error(error);
+      }
     };
+
+    // Speech recognition may recognized the text, but the outgoing activities was not echoed back from Direct Line Speech servers.
+    // Thus, all recognized text need to be synthetically add to "activity$".
+    eventSource.addEventListener('recognized', ({ text }) => {
+      // console.log('eventSource.recognized', text);
+
+      const timestamp = new Date().toISOString();
+
+      // TODO: [P0] The "postActivity" come later the bot response, plus, the server did not timestamp the outgoing activity.
+      //       Thus, the timestamp is incorrect. We are hacking by remembering the last recognized timestamp and timestamping it ourselves.
+
+      // The "audiosourceoff" event is received later than bot response.
+      // Although the "ServiceRecognizer.recognized" was on-time, the actual "speechRecognition.result" event was pretty late.
+      this._lastRecognizedEventTimestamp = timestamp;
+    });
   }
 
-  getSessionId() { return Observable.of(); }
-  postActivity(activity) {
-    try {
-      // TODO: Consider server echoing back the activity, because of timestamp clockskew issue.
-      const pseudoActivityId = Math.random().toString(36).substr(2);
+  getSessionId() { throw new Error('OAuth is not supported.'); }
 
-      this.dialogServiceConnector.sendActivityAsync(activity);
+  postActivity(activity) {
+    // console.log('postActivity', activity);
+
+    try {
+      // TODO: [P1] Direct Line Speech server currently do not ack the outgoing activities with any activity ID or timestamp.
+      const pseudoActivityId = randomActivityId();
+      const isSpeech = !!(activity.channelData && activity.channelData.speech);
+
+      // Do not send the activity if it was from speech
+      if (!isSpeech) {
+        this.dialogServiceConnector.sendActivityAsync(activity);
+      }
 
       this._activityObserver && this._activityObserver.next({
         ...activity,
         id: pseudoActivityId,
-        timestamp: new Date().toISOString()
+        timestamp: (isSpeech && this._lastRecognizedEventTimestamp) || new Date().toISOString()
       });
+
+      this._lastRecognizedEventTimestamp = null;
 
       return Observable.of(pseudoActivityId);
     } catch (err) {
