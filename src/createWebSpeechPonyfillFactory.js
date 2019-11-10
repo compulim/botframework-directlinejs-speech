@@ -48,7 +48,7 @@ export default function ({
         cancelAll();
       }
 
-      async speak(utterance) {
+      speak(utterance) {
         push(() => {
           const { abort, signal } = new AbortController();
 

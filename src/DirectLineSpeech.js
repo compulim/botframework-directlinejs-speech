@@ -33,27 +33,41 @@ export default class DirectLineSpeech {
     }));
 
     dialogServiceConnector.activityReceived = (_, { activity, audioStream }) => {
-      // console.log('dialogServiceConnector.activityReceived', activity);
+      // console.log('dialogServiceConnector.activityReceived', activity, audioStream);
 
-      try {
-        this._activityObserver && this._activityObserver.next({
-          ...activity,
-          channelData: {
-            ...activity.channelData,
-            ...(audioStream ? { utterance: new SpeechSynthesisAudioStreamUtterance(audioStream) } : {}),
-            directLineSpeechAudioStream: audioStream
-          },
-          from: {
-            ...activity.from,
-            role: 'bot'
-          },
-          // Direct Line Speech server currently do not timestamp outgoing activities.
-          // Thus, it will be easier to just re-timestamp every incoming/outgoing activities using local time.
-          timestamp: new Date().toISOString()
-        });
-      } catch (error) {
-        console.error(error);
-      }
+      // TODO: [P0] HACK by delaying the activity received
+      //       We should receive the activity received after the recognized text.
+      //       But since the SDK send "AudioSourceOff" event later than bot response, the recognized text event is dispatched later than bot response.
+      //       This is causing multiple issues:
+      //       1. Incoming activities are not synthesized.
+      //          - This is because the outgoing activities was not sent, Web Chat failed to recognize the outgoing was from a microphone.
+      //       2. Outgoing activities are not shown on transcript.
+      //          - Since the speech is not fully recognized, synthesizing an incoming activity will forcibly turn off the microphone.
+      //          - The outgoing activity is being aborted although it has completely recognized.
+      //       3. Echoed outgoing activities are not correctly timestamped
+      //          - Since server do not timestamp outgoing activities, we are using local timestamp
+      //          - Since outgoing activities are posted later than incoming acitivities, that means, the outgoing activities appears later than incoming activities
+      setTimeout(() => {
+        try {
+          this._activityObserver && this._activityObserver.next({
+            ...activity,
+            channelData: {
+              ...activity.channelData,
+              ...(audioStream ? { utterance: new SpeechSynthesisAudioStreamUtterance(audioStream) } : {}),
+              directLineSpeechAudioStream: audioStream
+            },
+            from: {
+              ...activity.from,
+              role: 'bot'
+            },
+            // Direct Line Speech server currently do not timestamp outgoing activities.
+            // Thus, it will be easier to just re-timestamp every incoming/outgoing activities using local time.
+            timestamp: new Date().toISOString()
+          });
+        } catch (error) {
+          console.error(error);
+        }
+      }, 500);
     };
 
     // Speech recognition may recognized the text, but the outgoing activities was not echoed back from Direct Line Speech servers.
