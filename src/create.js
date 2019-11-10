@@ -1,32 +1,28 @@
 import {
   AudioConfig,
-  // CognitiveSubscriptionKeyAuthentication,
-  // DialogConnectorFactory,
   BotFrameworkConfig,
-  DialogServiceConfig,
   DialogServiceConnector,
   OutputFormat,
   PropertyId
 } from 'microsoft-cognitiveservices-speech-sdk';
 
-// import * as SpeechSDK from 'microsoft-cognitiveservices-speech-sdk';
-
-import DirectLineSpeech from './DirectLineSpeech';
 import createWebSpeechPonyfillFactory from './createWebSpeechPonyfillFactory';
+import DirectLineSpeech from './DirectLineSpeech';
+import EventTarget, { defineEventAttribute } from './external/event-target-shim';
+
+class DirectLineSpeechEventSource extends EventTarget {}
+
+defineEventAttribute(DirectLineSpeechEventSource.prototype, 'recognized');
 
 export default function create({
   audioConfig = AudioConfig.fromDefaultMicrophoneInput(),
   lang = 'en-US',
-  secret,
   speechServicesAuthorizationToken,
   speechServicesRegion,
   speechServicesSubscriptionKey,
-  token
+  userID,
+  username
 }) {
-  if (token) {
-    throw new Error('Direct Line token is not supported yet.');
-  }
-
   if (
     (!speechServicesAuthorizationToken && !speechServicesSubscriptionKey)
     || (speechServicesAuthorizationToken && speechServicesSubscriptionKey)
@@ -34,21 +30,20 @@ export default function create({
     throw new Error('You must specify either speechServicesAuthorizationToken or speechServicesSubscriptionKey only.');
   }
 
-  const config = BotFrameworkConfig.fromSubscription(speechServicesSubscriptionKey || 'DUMMY', speechServicesRegion);
+  const eventSource = new DirectLineSpeechEventSource();
 
-  // HACK: temporarily needed during the service transition
-  config.setProperty(PropertyId.Conversation_ApplicationId, secret);
+  let config;
+
+  if (speechServicesAuthorizationToken) {
+    config = BotFrameworkConfig.fromAuthorizationToken(speechServicesAuthorizationToken, speechServicesRegion);
+  } else {
+    config = BotFrameworkConfig.fromSubscription(speechServicesSubscriptionKey, speechServicesRegion);
+  }
 
   config.setProperty(PropertyId.SpeechServiceConnection_RecoLanguage, lang);
 
   // HACK: Setup use of "auto reply" bot to test
   // config.setProperty("Conversation_Communication_Type", "AutoReply");
-
-  // HACK: Pass authorization token instead of subscription key
-  if (speechServicesAuthorizationToken) {
-    config.setProperty(PropertyId.SpeechServiceConnection_Key, null);
-    config.setProperty(PropertyId.SpeechServiceAuthorization_Token, speechServicesAuthorizationToken);
-  }
 
   config.outputFormat = OutputFormat.Detailed;
 
@@ -58,7 +53,12 @@ export default function create({
 
   // HACK: startContinuousRecognitionAsync is not working yet, use listenOnceAsync instead
   dialogServiceConnector.startContinuousRecognitionAsync = (resolve, reject) => {
-    dialogServiceConnector.listenOnceAsync(() => {}, err => {
+    dialogServiceConnector.listenOnceAsync(({ text }) => {
+      const recognizedEvent = new Event('recognized');
+
+      recognizedEvent.text = text;
+      eventSource.dispatchEvent(recognizedEvent);
+    }, err => {
       resolve = null;
       reject && reject(err);
     });
@@ -73,7 +73,12 @@ export default function create({
   };
 
   return {
-    directLine: new DirectLineSpeech({ dialogServiceConnector }),
+    directLine: new DirectLineSpeech({
+      dialogServiceConnector,
+      eventSource,
+      userID,
+      username
+    }),
     webSpeechPonyfillFactory: createWebSpeechPonyfillFactory({
       audioConfig,
       // enableTelemetry,

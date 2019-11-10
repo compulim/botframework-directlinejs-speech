@@ -17,8 +17,16 @@
       "destination": "public/web-speech-cognitive-services.development.js"
     },
     {
+      "source": "webspeech/web-speech-cognitive-services.development.js",
+      "destination": "public/webspeech/web-speech-cognitive-services.development.js"
+    },
+    {
       "source": "webchat.js",
       "destination": "public/webchat.js"
+    },
+    {
+      "source": "webchat/webchat.js",
+      "destination": "public/webchat/webchat.js"
     }
   ]
 }

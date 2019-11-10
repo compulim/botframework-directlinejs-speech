@@ -7,6 +7,7 @@ module.exports = {
   ],
   testPathIgnorePatterns: [
     ...defaults.testPathIgnorePatterns,
-    '/__tests__/utilities/'
+    '/__tests__/utilities/',
+    '/lib/'
   ]
 };
