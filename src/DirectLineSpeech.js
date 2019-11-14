@@ -9,8 +9,7 @@ function randomActivityId() {
 
 export default class DirectLineSpeech {
   constructor({
-    dialogServiceConnector,
-    eventSource
+    dialogServiceConnector
   }) {
     let connectionStatusObserver;
 
@@ -33,63 +32,38 @@ export default class DirectLineSpeech {
     }));
 
     dialogServiceConnector.activityReceived = (_, { activity, audioStream }) => {
-      // console.log('dialogServiceConnector.activityReceived', activity, audioStream);
+      console.groupCollapsed('dialogServiceConnector.activityReceived');
+      console.log(activity, audioStream);
+      console.groupEnd();
 
-      // TODO: [P0] HACK by delaying the activity received
-      //       We should receive the activity received after the recognized text.
-      //       But since the SDK send "AudioSourceOff" event later than bot response, the recognized text event is dispatched later than bot response.
-      //       This is causing multiple issues:
-      //       1. Incoming activities are not synthesized.
-      //          - This is because the outgoing activities was not sent, Web Chat failed to recognize the outgoing was from a microphone.
-      //       2. Outgoing activities are not shown on transcript.
-      //          - Since the speech is not fully recognized, synthesizing an incoming activity will forcibly turn off the microphone.
-      //          - The outgoing activity is being aborted although it has completely recognized.
-      //       3. Echoed outgoing activities are not correctly timestamped
-      //          - Since server do not timestamp outgoing activities, we are using local timestamp
-      //          - Since outgoing activities are posted later than incoming acitivities, that means, the outgoing activities appears later than incoming activities
-      setTimeout(() => {
-        try {
-          this._activityObserver && this._activityObserver.next({
-            ...activity,
-            channelData: {
-              ...activity.channelData,
-              ...(audioStream ? { utterance: new SpeechSynthesisAudioStreamUtterance(audioStream) } : {}),
-              directLineSpeechAudioStream: audioStream
-            },
-            from: {
-              ...activity.from,
-              role: 'bot'
-            },
-            // Direct Line Speech server currently do not timestamp outgoing activities.
-            // Thus, it will be easier to just re-timestamp every incoming/outgoing activities using local time.
-            timestamp: new Date().toISOString()
-          });
-        } catch (error) {
-          console.error(error);
-        }
-      }, 500);
+      try {
+        this._activityObserver && this._activityObserver.next({
+          ...activity,
+          channelData: {
+            ...activity.channelData,
+            ...(audioStream ? { utterance: new SpeechSynthesisAudioStreamUtterance(audioStream) } : {}),
+            directLineSpeechAudioStream: audioStream
+          },
+          from: {
+            ...activity.from,
+            role: 'bot'
+          },
+          // Direct Line Speech server currently do not timestamp outgoing activities.
+          // Thus, it will be easier to just re-timestamp every incoming/outgoing activities using local time.
+          timestamp: new Date().toISOString()
+        });
+      } catch (error) {
+        console.error(error);
+      }
     };
-
-    // Speech recognition may recognized the text, but the outgoing activities was not echoed back from Direct Line Speech servers.
-    // Thus, all recognized text need to be synthetically add to "activity$".
-    eventSource.addEventListener('recognized', ({ text }) => {
-      // console.log('eventSource.recognized', text);
-
-      const timestamp = new Date().toISOString();
-
-      // TODO: [P0] The "postActivity" come later the bot response, plus, the server did not timestamp the outgoing activity.
-      //       Thus, the timestamp is incorrect. We are hacking by remembering the last recognized timestamp and timestamping it ourselves.
-
-      // The "audiosourceoff" event is received later than bot response.
-      // Although the "ServiceRecognizer.recognized" was on-time, the actual "speechRecognition.result" event was pretty late.
-      this._lastRecognizedEventTimestamp = timestamp;
-    });
   }
 
   getSessionId() { throw new Error('OAuth is not supported.'); }
 
   postActivity(activity) {
-    // console.log('postActivity', activity);
+    console.groupCollapsed('postActivity');
+    console.log(activity);
+    console.groupEnd();
 
     try {
       // TODO: [P1] Direct Line Speech server currently do not ack the outgoing activities with any activity ID or timestamp.
@@ -104,7 +78,7 @@ export default class DirectLineSpeech {
       this._activityObserver && this._activityObserver.next({
         ...activity,
         id: pseudoActivityId,
-        timestamp: (isSpeech && this._lastRecognizedEventTimestamp) || new Date().toISOString()
+        timestamp: new Date().toISOString()
       });
 
       this._lastRecognizedEventTimestamp = null;

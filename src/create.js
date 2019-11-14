@@ -8,11 +8,6 @@ import {
 
 import createWebSpeechPonyfillFactory from './createWebSpeechPonyfillFactory';
 import DirectLineSpeech from './DirectLineSpeech';
-import EventTarget, { defineEventAttribute } from './external/event-target-shim';
-
-class DirectLineSpeechEventSource extends EventTarget {}
-
-defineEventAttribute(DirectLineSpeechEventSource.prototype, 'recognized');
 
 export default function create({
   audioConfig = AudioConfig.fromDefaultMicrophoneInput(),
@@ -29,8 +24,6 @@ export default function create({
   ) {
     throw new Error('You must specify either speechServicesAuthorizationToken or speechServicesSubscriptionKey only.');
   }
-
-  const eventSource = new DirectLineSpeechEventSource();
 
   let config;
 
@@ -57,7 +50,6 @@ export default function create({
       const recognizedEvent = new Event('recognized');
 
       recognizedEvent.text = text;
-      eventSource.dispatchEvent(recognizedEvent);
     }, err => {
       resolve = null;
       reject && reject(err);
@@ -75,7 +67,6 @@ export default function create({
   return {
     directLine: new DirectLineSpeech({
       dialogServiceConnector,
-      eventSource,
       userID,
       username
     }),

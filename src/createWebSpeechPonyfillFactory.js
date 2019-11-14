@@ -26,6 +26,7 @@ export default function ({
       audioConfig,
       createRecognizer: () => recognizer,
       enableTelemetry,
+      looseEvents: true,
       // enableTelemetry,
       // referenceGrammars: [`luis/${referenceGrammarID}-PRODUCTION`],
       // speechRecognitionEndpointId,

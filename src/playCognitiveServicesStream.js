@@ -60,6 +60,8 @@ export default function playCognitiveServicesStream(audioContext, audioFormat, s
       }
 
       for (let chunk = await read(), maxChunks = 0; !chunk.isEnd && maxChunks < 1000 && !signal.aborted; chunk = await read(), maxChunks++) {
+        if (signal.aborted) { break; }
+
         const audioData = formatAudioData(audioFormat, chunk.buffer);
         const sampleData = new Float32Array(audioData.length);
 
