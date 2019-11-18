@@ -17,7 +17,7 @@ export default async function createTestHarness() {
 
   return {
     directLine,
-    recognizeText: async text => {
+    sendTextAsSpeech: async text => {
       audioConfig.push(await fetchSpeechData({ text }));
 
       // Create a new SpeechRecognition session and start it.

@@ -14,15 +14,15 @@ beforeEach(() => {
 jest.setTimeout(10000);
 
 test('should echo back when saying "hello" and "world"', async () => {
-  const { directLine, recognizeText } = await createTestHarness();
+  const { directLine, sendTextAsSpeech } = await createTestHarness();
 
   const connectedPromise = waitForConnected(directLine);
   const activitiesPromise = subscribeAll(take(directLine.activity$, 2));
 
   await connectedPromise;
 
-  await recognizeText('hello');
-  await recognizeText('world');
+  await sendTextAsSpeech('hello');
+  await sendTextAsSpeech('world');
 
   const activities = await activitiesPromise;
   const activityUtterances = Promise.all(activities.map(activity => recognizeActivityAsText(activity)));
@@ -31,6 +31,26 @@ test('should echo back when saying "hello" and "world"', async () => {
     Array [
       "Hello.",
       "World.",
+    ]
+  `);
+});
+
+test('should echo back "Bellevue" when saying "bellview"', async () => {
+  const { directLine, sendTextAsSpeech } = await createTestHarness();
+
+  const connectedPromise = waitForConnected(directLine);
+  const activitiesPromise = subscribeAll(take(directLine.activity$, 1));
+
+  await connectedPromise;
+
+  await sendTextAsSpeech('bellview');
+
+  const activities = await activitiesPromise;
+  const activityUtterances = Promise.all(activities.map(activity => recognizeActivityAsText(activity)));
+
+  await expect(activityUtterances).resolves.toMatchInlineSnapshot(`
+    Array [
+      "Bellevue.",
     ]
   `);
 });
