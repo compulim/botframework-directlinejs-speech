@@ -1,44 +1,36 @@
-import createDeferred from './utilities/createDeferred';
-import createDirectLineSpeechWithUtterance from './utilities/createDirectLineSpeechWithUtterance';
-import recognizeOnce from './utilities/recognizeOnce';
+import 'global-agent/bootstrap';
+
+import createTestHarness from './utilities/createTestHarness';
+import MockAudioContext from './utilities/MockAudioContext';
+import recognizeActivityAsText from './utilities/recognizeActivityAsText';
+import subscribeAll from './utilities/observable/subscribeAll';
+import take from './utilities/observable/take';
+import waitForConnected from './utilities/waitForConnected';
+
+beforeEach(() => {
+  global.AudioContext = MockAudioContext;
+});
 
 jest.setTimeout(10000);
 
-describe('send speech to bot using SSML', () => {
-  let directLine, webSpeechPonyfillFactory;
-  let connectedDeferred;
-  let subscriptions = [];
+test('should echo back when saying "hello" and "world"', async () => {
+  const { directLine, recognizeText } = await createTestHarness();
 
-  beforeEach(async () => {
-    const result = await createDirectLineSpeechWithUtterance('Hello.');
+  const connectedPromise = waitForConnected(directLine);
+  const activitiesPromise = subscribeAll(take(directLine.activity$, 2));
 
-    directLine = result.directLine;
-    webSpeechPonyfillFactory = result.webSpeechPonyfillFactory;
+  await connectedPromise;
 
-    connectedDeferred = createDeferred();
-    subscriptions = [];
+  await recognizeText('hello');
+  await recognizeText('world');
 
-    subscriptions.push(
-      directLine.connectionStatus$.subscribe({
-        next: value => value === 2 && connectedDeferred.resolve()
-      })
-    );
-  });
+  const activities = await activitiesPromise;
+  const activityUtterances = Promise.all(activities.map(activity => recognizeActivityAsText(activity)));
 
-  test('', async () => {
-    subscriptions.push(
-      directLine.activity$.subscribe({
-        next: activity => console.log(activity)
-      })
-    );
-
-    await connectedDeferred.promise;
-    await recognizeOnce(webSpeechPonyfillFactory());
-
-    // TODO: Wait for incoming activity
-  });
-
-  afterEach(() => {
-    subscriptions.forEach(subscription => subscription.unsubscribe());
-  });
+  await expect(activityUtterances).resolves.toMatchInlineSnapshot(`
+    Array [
+      "Hello.",
+      "World.",
+    ]
+  `);
 });

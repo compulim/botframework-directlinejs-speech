@@ -41,5 +41,6 @@ export default async function fetchSpeechData({
     throw new Error(`Failed to syntheis speech, server returned ${res.status}`);
   }
 
-  return await res.buffer();
+  // return await res.buffer();
+  return await res.arrayBuffer();
 }

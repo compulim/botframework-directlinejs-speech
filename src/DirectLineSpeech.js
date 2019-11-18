@@ -32,9 +32,9 @@ export default class DirectLineSpeech {
     }));
 
     dialogServiceConnector.activityReceived = (_, { activity, audioStream }) => {
-      console.groupCollapsed('dialogServiceConnector.activityReceived');
-      console.log(activity, audioStream);
-      console.groupEnd();
+      // console.groupCollapsed('dialogServiceConnector.activityReceived');
+      // console.log(activity, audioStream);
+      // console.groupEnd();
 
       try {
         this._activityObserver && this._activityObserver.next({
@@ -61,9 +61,9 @@ export default class DirectLineSpeech {
   getSessionId() { throw new Error('OAuth is not supported.'); }
 
   postActivity(activity) {
-    console.groupCollapsed('postActivity');
-    console.log(activity);
-    console.groupEnd();
+    // console.groupCollapsed('postActivity');
+    // console.log(activity);
+    // console.groupEnd();
 
     try {
       // TODO: [P1] Direct Line Speech server currently do not ack the outgoing activities with any activity ID or timestamp.
