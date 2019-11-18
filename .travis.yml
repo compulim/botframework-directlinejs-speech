@@ -12,7 +12,7 @@ install:
 - npm run prepublishOnly
 
 script:
-- echo Tests are temporarily disabled.
+- npm test -- --coverage true
 
 before_deploy:
 - npm pack
