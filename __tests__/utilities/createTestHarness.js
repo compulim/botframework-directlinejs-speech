@@ -1,5 +1,5 @@
+import createAdapters from '../../src/createAdapters';
 import createDeferred from './createDeferred';
-import createDirectLineSpeech from '../../src/create';
 import createQueuedArrayBufferAudioSource from './createQueuedArrayBufferAudioSource';
 import fetchSpeechData from './fetchSpeechData';
 import getMemoizedSpeechCredentials from './getMemoizedSpeechCredentials';
@@ -7,7 +7,7 @@ import getMemoizedSpeechCredentials from './getMemoizedSpeechCredentials';
 export default async function createTestHarness() {
   const { authorizationToken: speechServicesAuthorizationToken, region: speechServicesRegion } = await getMemoizedSpeechCredentials();
   const audioConfig = createQueuedArrayBufferAudioSource();
-  const { directLine, webSpeechPonyfillFactory } = createDirectLineSpeech({
+  const { directLine, webSpeechPonyfillFactory } = createAdapters({
     audioConfig,
     speechServicesAuthorizationToken,
     speechServicesRegion
