@@ -53,6 +53,13 @@ export default function patchDialogServiceConnectorInline(dialogServiceConnector
 
   // TODO: stopContinuousRecognitionAsync is not working yet, so we resolve when the recognition completed.
   dialogServiceConnector.stopContinuousRecognitionAsync = resolve => {
+    // web-speech-cognitive-services always operate in continuous mode for compatibility reason.
+    // When in non-continuous mode, this function will be called after the first recognition.
+
+    // console.groupCollapsed('stopContinuousRecognitionAsync');
+    // console.log(dialogServiceConnector);
+    // console.groupEnd();
+
     resolve && lastRecognitionDeferred && lastRecognitionDeferred.promise.then(resolve, resolve);
   };
 

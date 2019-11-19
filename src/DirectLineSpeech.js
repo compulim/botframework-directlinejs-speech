@@ -46,6 +46,7 @@ export default class DirectLineSpeech {
           },
           from: {
             ...activity.from,
+            // Since DLSpeech service never ACK our outgoing activity, this activity must be from bot.
             role: 'bot'
           },
           // Direct Line Speech server currently do not timestamp outgoing activities.
@@ -58,7 +59,16 @@ export default class DirectLineSpeech {
     };
   }
 
-  getSessionId() { throw new Error('OAuth is not supported.'); }
+  end() {
+    // This could be calling this.dialogServiceConnector.end() followed by a permanent end.
+
+    this.dialogServiceConnector.close();
+
+    // throw new Error('end() is not implemented.');
+  }
+
+  // TODO: getSessionId should be falsy if OAuth is not supported. Need to fix Web Chat.
+  // getSessionId() { throw new Error('OAuth is not supported.'); }
 
   postActivity(activity) {
     // console.groupCollapsed('postActivity');

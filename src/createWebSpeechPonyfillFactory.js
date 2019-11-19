@@ -1,7 +1,5 @@
-// TODO: Use package instead of bundle
-const { createSpeechRecognitionPonyfillFromRecognizer } = window.WebSpeechCognitiveServices;
-
-import { AudioStreamFormat } from 'microsoft-cognitiveservices-speech-sdk';
+import { AudioConfig } from 'microsoft-cognitiveservices-speech-sdk';
+import { createSpeechRecognitionPonyfillFromRecognizer } from 'web-speech-cognitive-services/lib/SpeechServices/SpeechToText';
 import AbortController from 'abort-controller';
 
 import createErrorEvent from './createErrorEvent';
@@ -12,7 +10,7 @@ import playWhiteNoise from './playWhiteNoise';
 import SpeechSynthesisAudioStreamUtterance from './SpeechSynthesisAudioStreamUtterance';
 
 export default function ({
-  audioConfig,
+  audioConfig = AudioConfig.fromDefaultMicrophoneInput(),
   enableTelemetry,
   recognizer,
   // speechRecognitionEndpointId,
@@ -27,7 +25,6 @@ export default function ({
       createRecognizer: () => recognizer,
       enableTelemetry,
       looseEvents: true,
-      // enableTelemetry,
       // referenceGrammars: [`luis/${referenceGrammarID}-PRODUCTION`],
       // speechRecognitionEndpointId,
       // speechSynthesisDeploymentId,
@@ -36,17 +33,16 @@ export default function ({
     });
 
     const audioContext = new AudioContext();
-    const audioFormat = AudioStreamFormat.getDefaultInputFormat();
 
     const { cancelAll, push } = createTaskQueue();
 
     class SpeechSynthesis extends EventTargetShim {
-      getVoices() {
-        return [];
-      }
-
       cancel() {
         cancelAll();
+      }
+
+      getVoices() {
+        return [];
       }
 
       speak(utterance) {
@@ -60,9 +56,9 @@ export default function ({
 
               try {
                 if (utterance.audioStream) {
-                  const { streamReader } = utterance.audioStream;
+                  const { format, streamReader } = utterance.audioStream;
 
-                  await playCognitiveServicesStream(audioContext, audioFormat, streamReader, { signal });
+                  await playCognitiveServicesStream(audioContext, format, streamReader, { signal });
                 } else {
                   await playWhiteNoise(audioContext);
                 }
