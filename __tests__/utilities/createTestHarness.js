@@ -9,8 +9,6 @@ export default async function createTestHarness() {
   const audioConfig = createQueuedArrayBufferAudioSource();
   const { directLine, webSpeechPonyfillFactory } = createDirectLineSpeech({
     audioConfig,
-    // TODO: Update to use Direct Line token instead of secret
-    secret: process.env.DIRECT_LINE_SPEECH_SECRET,
     speechServicesAuthorizationToken,
     speechServicesRegion
   });

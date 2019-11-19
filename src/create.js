@@ -8,6 +8,7 @@ import {
 
 import createWebSpeechPonyfillFactory from './createWebSpeechPonyfillFactory';
 import DirectLineSpeech from './DirectLineSpeech';
+import patchDialogServiceConnectorInline from './patchDialogServiceConnectorInline';
 
 export default function create({
   audioConfig = AudioConfig.fromDefaultMicrophoneInput(),
@@ -35,34 +36,11 @@ export default function create({
 
   config.setProperty(PropertyId.SpeechServiceConnection_RecoLanguage, lang);
 
-  // HACK: Setup use of "auto reply" bot to test
-  // config.setProperty("Conversation_Communication_Type", "AutoReply");
-
   config.outputFormat = OutputFormat.Detailed;
 
-  const dialogServiceConnector = new DialogServiceConnector(config, audioConfig);
+  const dialogServiceConnector = patchDialogServiceConnectorInline(new DialogServiceConnector(config, audioConfig));
 
   dialogServiceConnector.connect();
-
-  // HACK: startContinuousRecognitionAsync is not working yet, use listenOnceAsync instead
-  dialogServiceConnector.startContinuousRecognitionAsync = (resolve, reject) => {
-    dialogServiceConnector.listenOnceAsync(({ text }) => {
-      const recognizedEvent = new Event('recognized');
-
-      recognizedEvent.text = text;
-    }, err => {
-      resolve = null;
-      reject && reject(err);
-    });
-
-    reject = null;
-    resolve && resolve();
-  };
-
-  // HACK: stopContinuousRecognitionAsync is not working yet.
-  dialogServiceConnector.stopContinuousRecognitionAsync = resolve => {
-    resolve && resolve();
-  };
 
   return {
     directLine: new DirectLineSpeech({

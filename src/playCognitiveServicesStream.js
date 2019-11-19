@@ -1,6 +1,4 @@
-function cognitiveServicesPromiseToESPromise(promise) {
-  return new Promise((resolve, reject) => promise.on(resolve, reject));
-}
+import cognitiveServicesPromiseToESPromise from './cognitiveServicesPromiseToESPromise';
 
 function createBufferSource(audioContext, { channels, samplesPerSec }, channelInterleavedAudioData) {
   const bufferSource = audioContext.createBufferSource();
@@ -63,11 +61,7 @@ export default function playCognitiveServicesStream(audioContext, audioFormat, s
         if (signal.aborted) { break; }
 
         const audioData = formatAudioData(audioFormat, chunk.buffer);
-        const sampleData = new Float32Array(audioData.length);
-
-        sampleData.set(audioData, 0);
-
-        const bufferSource = createBufferSource(audioContext, audioFormat, sampleData);
+        const bufferSource = createBufferSource(audioContext, audioFormat, audioData);
         const { duration } = bufferSource.buffer;
 
         if (!currentTime) {
