@@ -13,7 +13,8 @@ beforeEach(() => {
         duration: 1,
         getChannelData(channel) {
           return channelData[channel];
-        }
+        },
+        samplesPerSec
       };
     },
     createBufferSource() {
@@ -85,7 +86,8 @@ test('should play 16-bit chunked stream to AudioContext', async () => {
   const nodes = audioContext.connectedNodes.map(bufferSource => {
     return {
       channelData: new Float32Array(bufferSource.buffer.channelData),
-      startAtTime: bufferSource.startAtTime
+      startAtTime: bufferSource.startAtTime,
+      samplesPerSec: bufferSource.buffer.samplesPerSec
     };
   });
 
@@ -95,12 +97,14 @@ test('should play 16-bit chunked stream to AudioContext', async () => {
         "channelData": Float32Array [
           0,
         ],
+        "samplesPerSec": 16000,
         "startAtTime": 0,
       },
       Object {
         "channelData": Float32Array [
           -1,
         ],
+        "samplesPerSec": 16000,
         "startAtTime": 1,
       },
     ]
