@@ -6,7 +6,6 @@ module.exports = {
   output: {
     filename: 'directlinespeech.js',
     library: 'DirectLineSpeech',
-    // libraryExport: 'DirectLine',
     libraryTarget: 'window',
     path: resolve(__dirname, 'dist')
   }
