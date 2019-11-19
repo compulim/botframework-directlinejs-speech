@@ -45,7 +45,7 @@ function formatAudioData({ bitsPerSample }, audioData) {
   }
 }
 
-export default function playCognitiveServicesStream(audioContext, audioFormat, streamReader, { signal } = {}) {
+export default function playCognitiveServicesStream(audioContext, audioFormat, streamReader, { signal = { aborted: false } } = {}) {
   return new Promise(async (resolve, reject) => {
     try {
       let currentTime;
@@ -83,7 +83,7 @@ export default function playCognitiveServicesStream(audioContext, audioFormat, s
         resolve();
       }
     } catch (error) {
-      reject(err);
+      reject(error);
     }
   });
 }
