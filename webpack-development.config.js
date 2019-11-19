@@ -1,5 +1,11 @@
+const productionConfig = require('./webpack.config');
+
 module.exports = {
-  ...require('./webpack.config'),
+  ...productionConfig,
   devtool: 'inline-source-map',
-  mode: 'development'
+  mode: 'development',
+  output: {
+    ...productionConfig.output,
+    filename: 'directlinespeech.development.js'
+  },
 };

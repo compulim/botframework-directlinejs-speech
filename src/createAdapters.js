@@ -1,7 +1,6 @@
 import {
   BotFrameworkConfig,
   DialogServiceConnector,
-  OutputFormat,
   PropertyId
 } from 'microsoft-cognitiveservices-speech-sdk';
 
@@ -12,7 +11,7 @@ import patchDialogServiceConnectorInline from './patchDialogServiceConnectorInli
 export default function create({
   audioConfig,
   audioContext,
-  lang = 'en-US',
+  language = 'en-US',
   speechServicesAuthorizationToken,
   speechServicesRegion,
   speechServicesSubscriptionKey,
@@ -38,10 +37,15 @@ export default function create({
     config = BotFrameworkConfig.fromSubscription(speechServicesSubscriptionKey, speechServicesRegion);
   }
 
-  config.setProperty(PropertyId.SpeechServiceConnection_RecoLanguage, lang);
+  // Supported options can be found in DialogConnectorFactory.js.
 
-  // TODO: Checks if this outputFormat is being used or not.
-  config.outputFormat = OutputFormat.Detailed;
+  config.setProperty(PropertyId.SpeechServiceConnection_RecoLanguage, language);
+
+  // None of the following works for setting output format.
+
+  // config.setProperty(PropertyId.SpeechServiceResponse_OutputFormatOption, OutputFormat[OutputFormat.Detailed]);
+  // config.setProperty(PropertyId.SpeechServiceResponse_RequestDetailedResultTrueFalse, true);
+  // config.setProperty(OutputFormatPropertyName, OutputFormat[OutputFormat.Detailed]);
 
   const dialogServiceConnector = patchDialogServiceConnectorInline(new DialogServiceConnector(config, audioConfig));
 
@@ -59,15 +63,6 @@ export default function create({
     // speechSynthesisOutputFormat,
     // textNormalization
   });
-
-  // setTimeout(() => {
-  //   console.log('Closing');
-  //   directLine.end();
-  // }, 5000);
-
-  // setTimeout(() => {
-  //   console.log('Closing in 1 second');
-  // }, 4000);
 
   return {
     directLine,

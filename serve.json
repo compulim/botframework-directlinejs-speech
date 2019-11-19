@@ -5,8 +5,12 @@
       "destination": "public/index.html"
     },
     {
-      "source": "directlinespeech.js",
-      "destination": "dist/directlinespeech.js"
+      "source": "directlinespeech.development.js",
+      "destination": "dist/directlinespeech.development.js"
+    },
+    {
+      "source": "directlinespeech.production.min.js",
+      "destination": "dist/directlinespeech.production.min.js"
     },
     {
       "source": "hello.wav",
@@ -19,6 +23,10 @@
     {
       "source": "webchat/webchat.js",
       "destination": "public/webchat/webchat.js"
+    },
+    {
+      "source": "web-speech-cognitive-services.development.js",
+      "destination": "public/web-speech-cognitive-services.development.js"
     }
   ]
 }

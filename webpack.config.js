@@ -4,7 +4,7 @@ module.exports = {
   entry: './lib/index',
   mode: 'production',
   output: {
-    filename: 'directlinespeech.js',
+    filename: 'directlinespeech.production.min.js',
     library: 'DirectLineSpeech',
     libraryTarget: 'window',
     path: resolve(__dirname, 'dist')

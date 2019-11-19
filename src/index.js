@@ -1,12 +1,6 @@
-import { AudioConfig } from 'microsoft-cognitiveservices-speech-sdk';
+import createAdapters from './createAdapters';
 
-import create from './create';
-
-export {
-  // TODO: Temporarily exporting AudioConfig for development purpose
-  AudioConfig,
-  create
-}
+export { createAdapters };
 
 if (typeof HTMLDocument !== 'undefined' && typeof document !== 'undefined' && document instanceof HTMLDocument) {
   const meta = document.createElement('meta');
